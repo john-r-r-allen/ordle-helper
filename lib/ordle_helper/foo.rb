@@ -26,10 +26,8 @@ module OrdleHelper
       exclude_words_with_not_included_letters
       exclude_words_without_correct_letters
       exclude_words_without_included_letters_in_wrong_spot
-      puts "Possible words:"
-      word_bank.each do |word|
-        puts "\t#{word}"
-      end
+      output_current_word_bank_state
+
       true
     end
 
@@ -54,6 +52,15 @@ module OrdleHelper
         letters.each do |letter|
           word_bank.reject! { |word| word[position] == letter }
           word_bank.select! { |word| word.include?(letter) }
+        end
+      end
+    end
+
+    def output_current_word_bank_state
+      puts "#{word_bank.size} possible words:"
+      if word_bank.size < 25
+        word_bank.each do |word|
+          puts "\t#{word}"
         end
       end
     end
