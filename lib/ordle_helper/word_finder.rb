@@ -1,23 +1,24 @@
 module OrdleHelper
-  class Foo
-    WORD_BANK = "word_bank.csv"
-    NOT_INCLUDED_LETTERS = %w()
+  class WordFinder
+    WORD_BANK = "word_bank.csv".freeze
+    NOT_INCLUDED_LETTERS = %w().freeze
     CORRECT_LETTERS = {
       0 => "",
       1 => "",
       2 => "",
       3 => "",
       4 => ""
-    }
+    }.freeze
     INCLUDED_LETTERS_WRONG_SPOT = {
       0 => %w(),
       1 => %w(),
       2 => %w(),
       3 => %w(),
-      4 => %w(),
-    }
+      4 => %w()
+    }.freeze
 
     attr_accessor :word_bank
+
     def initialize
       @word_bank = CSV.read(WORD_BANK).map(&:first)
     end
@@ -41,7 +42,7 @@ module OrdleHelper
       CORRECT_LETTERS.each do |position, letter|
         next if letter.empty?
 
-        word_bank.select! { |word|  word[position] == letter }
+        word_bank.select! { |word| word[position] == letter }
       end
     end
 
@@ -58,10 +59,10 @@ module OrdleHelper
 
     def output_current_word_bank_state
       puts "#{word_bank.size} possible words:"
-      if word_bank.size < 25
-        word_bank.each do |word|
-          puts "\t#{word}"
-        end
+      return if word_bank.size > 25
+
+      word_bank.each do |word|
+        puts "\t#{word}"
       end
     end
   end
