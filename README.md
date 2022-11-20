@@ -11,3 +11,9 @@ Example: To add brave, blast, and skirt, run the following:
 ```shell
 WINNING_WORDS="brave blast skirt" ruby run.rb
 ```
+
+## Print former winners
+
+```shell
+PRINT_WINNERS="1" ruby run.rb 
+```
