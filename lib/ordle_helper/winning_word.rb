@@ -26,6 +26,7 @@ module OrdleHelper
       else
         winning_words[winning_word] = 1
       end
+      puts "Added winning word: #{winning_word}"
 
       save_to_winning_words_file
     end
