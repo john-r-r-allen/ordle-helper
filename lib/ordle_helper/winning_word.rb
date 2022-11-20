@@ -18,17 +18,34 @@ module OrdleHelper
       @winning_words_file ||= CSV.read(WINNING_WORDS_FILE, CSV_READ_OPTIONS)
     end
 
-    def add_winner(winning_word)
-      raise RuntimeError, invalid_winner_message(winning_word) unless WordFinder.word_bank_contains?(winning_word)
+    def add_winner(word)
+      raise RuntimeError, invalid_winner_message(word) unless WordFinder.word_bank_contains?(word)
 
-      if winning_words.has_key?(winning_word)
-        winning_words[winning_word] = winning_words[winning_word] + 1
+      if winning_words.has_key?(word)
+        winning_words[word] = winning_words[word] + 1
       else
-        winning_words[winning_word] = 1
+        winning_words[word] = 1
       end
-      puts "Added winning word: #{winning_word}"
+      puts "Added winning word: #{word}".green
 
       save_to_winning_words_file
+    end
+
+    def remove_winner(word)
+      raise RuntimeError, invalid_removal_message(word) unless winning_words.include?(word)
+
+      if winning_words[word] <= 1
+        winning_words.delete(word)
+      else
+        winning_words[word] -= 1
+      end
+      puts "removed winning word #{word}".green
+
+      save_to_winning_words_file
+    end
+
+    def invalid_removal_message(word)
+      "Unable to remove #{word} from winners list as it has never won"
     end
 
     def invalid_winner_message(winning_word)

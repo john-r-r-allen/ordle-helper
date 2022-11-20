@@ -18,6 +18,21 @@ The command with no words added is below:
 WINNING_WORDS="" ruby run.rb
 ```
 
+## Removing Winners from the Winners List
+
+Example: To remove brave, blast, and skirt:
+
+
+```shell
+REMOVE_WINNING_WORDS="brave blast skirt" ruby run.rb
+```
+
+The command with no words added is below:
+
+```shell
+REMOVE_WINNING_WORDS="" ruby run.rb
+```
+
 ## Print former winners
 
 ```shell
