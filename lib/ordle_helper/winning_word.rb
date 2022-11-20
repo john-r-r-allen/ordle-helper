@@ -19,6 +19,8 @@ module OrdleHelper
     end
 
     def add_winner(winning_word)
+      raise RuntimeError, invalid_winner_message(winning_word) unless WordFinder.word_bank_contains?(winning_word)
+
       if winning_words.has_key?(winning_word)
         winning_words[winning_word] = winning_words[winning_word] + 1
       else
@@ -26,6 +28,10 @@ module OrdleHelper
       end
 
       save_to_winning_words_file
+    end
+
+    def invalid_winner_message(winning_word)
+      "Unable to add winning word #{winning_word} as it does not exist in the word bank."
     end
 
     def save_to_winning_words_file

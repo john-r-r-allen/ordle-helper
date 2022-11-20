@@ -19,6 +19,10 @@ module OrdleHelper
 
     attr_accessor :word_bank
 
+    def self.word_bank_contains?(word)
+      CSV.read(WORD_BANK).map(&:first).include?(word)
+    end
+
     def initialize
       @word_bank = CSV.read(WORD_BANK).map(&:first)
     end
