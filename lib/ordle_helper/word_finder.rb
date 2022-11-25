@@ -66,8 +66,16 @@ module OrdleHelper
       return if word_bank.size > 25
 
       word_bank.each do |word|
-        puts "\t#{word}"
+        if potential_plural?(word)
+          puts "\t#{word} - Potential Plural".yellow
+        else
+          puts "\t#{word}".blue
+        end
       end
+    end
+
+    def potential_plural?(word)
+      word.end_with?("s")
     end
   end
 end
