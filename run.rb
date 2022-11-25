@@ -14,3 +14,5 @@ rescue StandardError => e
   puts e.message.red
 end
 winning_words.print_winners if ENV["PRINT_WINNERS"] == "1"
+
+OrdleHelper::WordFinder.new.call

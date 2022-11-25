@@ -1,22 +1,6 @@
 module OrdleHelper
   class WordFinder
     WORD_BANK = "word_bank.csv".freeze
-    GUESSES = %w()
-    NOT_INCLUDED_LETTERS = %w().freeze
-    CORRECT_LETTERS = {
-      0 => "",
-      1 => "",
-      2 => "",
-      3 => "",
-      4 => ""
-    }.freeze
-    INCLUDED_LETTERS_WRONG_SPOT = {
-      0 => %w(),
-      1 => %w(),
-      2 => %w(),
-      3 => %w(),
-      4 => %w()
-    }.freeze
 
     attr_accessor :word_bank
 
@@ -29,6 +13,8 @@ module OrdleHelper
     end
 
     def call
+      verify_consistent_information
+      verify_guesses
       exclude_words_with_not_included_letters
       exclude_words_without_correct_letters
       exclude_words_without_included_letters_in_wrong_spot
@@ -37,26 +23,52 @@ module OrdleHelper
       true
     end
 
+    def verify_consistent_information
+      return if included_letters.empty? || not_included_letters.empty?
+      included_letters.each do |included_letter|
+        raise "inconsistent information provided" if not_included_letters.include?(included_letter)
+      end
+    end
+
+    def included_letters
+      @included_letters = []
+      5.times do |position|
+        @included_letters << correct_letters[position] unless correct_letters[position].blank?
+
+        included_letters_wrong_spot[position].each do |word|
+          @included_letters << word
+        end
+      end
+
+      @included_letters
+    end
+
     def verify_guesses
-      GUESSES.each do |guess|
+      guesses.each do |guess|
         output = ""
         guess.size.times do |position|
-          output += guess[position] if NOT_INCLUDED_LETTERS.include?(guess[position])
-          output += guess[position].green if CORRECT_LETTERS[position] == guess[position]
-          output += guess[position].yellow if INCLUDED_LETTERS_WRONG_SPOT[position].include?(guess[position])
+          if not_included_letters.include?(guess[position])
+            output += guess[position]
+          elsif correct_letters[position] == guess[position]
+            output += guess[position].green
+          elsif included_letters_wrong_spot[position].include?(guess[position])
+            output += guess[position].yellow
+          else
+            raise RuntimeError, "Letter without information: #{guess[position]}"
+          end
         end
         puts output
       end
     end
 
     def exclude_words_with_not_included_letters
-      NOT_INCLUDED_LETTERS.each do |letter|
+      not_included_letters.each do |letter|
         word_bank.reject! { |word| word.include?(letter) }
       end
     end
 
     def exclude_words_without_correct_letters
-      CORRECT_LETTERS.each do |position, letter|
+      correct_letters.each do |position, letter|
         next if letter.empty?
 
         word_bank.select! { |word| word[position] == letter }
@@ -64,7 +76,7 @@ module OrdleHelper
     end
 
     def exclude_words_without_included_letters_in_wrong_spot
-      INCLUDED_LETTERS_WRONG_SPOT.each do |position, letters|
+      included_letters_wrong_spot.each do |position, letters|
         next if letters.empty?
 
         letters.each do |letter|
@@ -89,6 +101,34 @@ module OrdleHelper
 
     def potential_plural?(word)
       word.end_with?("s")
+    end
+
+    def guesses
+      %w()
+    end
+
+    def not_included_letters
+      %w()
+    end
+
+    def correct_letters
+      {
+        0 => "",
+        1 => "",
+        2 => "",
+        3 => "",
+        4 => ""
+      }
+    end
+
+    def included_letters_wrong_spot
+      {
+        0 => %w(),
+        1 => %w(),
+        2 => %w(),
+        3 => %w(),
+        4 => %w()
+      }
     end
   end
 end
