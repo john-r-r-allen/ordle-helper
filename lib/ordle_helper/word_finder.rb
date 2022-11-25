@@ -1,6 +1,7 @@
 module OrdleHelper
   class WordFinder
     WORD_BANK = "word_bank.csv".freeze
+    GUESSES = %w()
     NOT_INCLUDED_LETTERS = %w().freeze
     CORRECT_LETTERS = {
       0 => "",
@@ -34,6 +35,18 @@ module OrdleHelper
       output_current_word_bank_state
 
       true
+    end
+
+    def verify_guesses
+      GUESSES.each do |guess|
+        output = ""
+        guess.size.times do |position|
+          output += guess[position] if NOT_INCLUDED_LETTERS.include?(guess[position])
+          output += guess[position].green if CORRECT_LETTERS[position] == guess[position]
+          output += guess[position].yellow if INCLUDED_LETTERS_WRONG_SPOT[position].include?(guess[position])
+        end
+        puts output
+      end
     end
 
     def exclude_words_with_not_included_letters
