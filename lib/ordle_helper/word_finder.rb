@@ -53,8 +53,10 @@ module OrdleHelper
             output += guess[position].green
           elsif included_letters_wrong_spot[position].include?(guess[position])
             output += guess[position].yellow
+          elsif included_letters_with_known_number_of_occurrences[guess[position]] < guess.split("").count(guess[position])
+            output += guess[position]
           else
-            raise RuntimeError, "Letter without information: #{guess[position]}"
+            raise "Letter without information: #{guess[position]}"
           end
         end
         puts output
@@ -128,6 +130,11 @@ module OrdleHelper
         2 => %w(),
         3 => %w(),
         4 => %w()
+      }
+    end
+
+    def included_letters_with_known_number_of_occurrences
+      {
       }
     end
   end
