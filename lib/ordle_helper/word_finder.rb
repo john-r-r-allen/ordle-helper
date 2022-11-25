@@ -53,10 +53,14 @@ module OrdleHelper
             output += guess[position].green
           elsif included_letters_wrong_spot[position].include?(guess[position])
             output += guess[position].yellow
-          elsif included_letters_with_known_number_of_occurrences[guess[position]] < guess.split("").count(guess[position])
-            output += guess[position]
           else
-            raise "Letter without information: #{guess[position]}"
+            raise "Letter without information: #{guess[position]}" unless included_letters_with_known_number_of_occurrences.key?(guess[position])
+
+            if included_letters_with_known_number_of_occurrences[guess[position]] < guess.split("").count(guess[position])
+              output += guess[position]
+            else
+              raise "Unknown error occurred"
+            end
           end
         end
         puts output
@@ -106,11 +110,11 @@ module OrdleHelper
     end
 
     def guesses
-      %w()
+      %w().map(&:upcase)
     end
 
     def not_included_letters
-      %w()
+      "".split("").uniq.map(&:upcase)
     end
 
     def correct_letters
@@ -120,7 +124,7 @@ module OrdleHelper
         2 => "",
         3 => "",
         4 => ""
-      }
+      }.each {|_key, value| value.upcase! }
     end
 
     def included_letters_wrong_spot
@@ -130,7 +134,7 @@ module OrdleHelper
         2 => %w(),
         3 => %w(),
         4 => %w()
-      }
+      }.each {|_key, value| value.map!(&:upcase) }
     end
 
     def included_letters_with_known_number_of_occurrences
