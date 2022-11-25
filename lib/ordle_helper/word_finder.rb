@@ -16,8 +16,11 @@ module OrdleHelper
       verify_consistent_information
       verify_guesses
       exclude_words_with_not_included_letters
+      puts word_bank.include?("poppy")
       exclude_words_without_correct_letters
+      puts word_bank.include?("poppy")
       exclude_words_without_included_letters_in_wrong_spot
+      puts word_bank.include?("poppy")
       output_current_word_bank_state
 
       true
@@ -69,7 +72,7 @@ module OrdleHelper
 
     def exclude_words_with_not_included_letters
       not_included_letters.each do |letter|
-        word_bank.reject! { |word| word.include?(letter) }
+        word_bank.reject! { |word| word.upcase.include?(letter.upcase) }
       end
     end
 
@@ -77,7 +80,7 @@ module OrdleHelper
       correct_letters.each do |position, letter|
         next if letter.empty?
 
-        word_bank.select! { |word| word[position] == letter }
+        word_bank.select! { |word| word[position].upcase == letter.upcase }
       end
     end
 
@@ -86,8 +89,8 @@ module OrdleHelper
         next if letters.empty?
 
         letters.each do |letter|
-          word_bank.reject! { |word| word[position] == letter }
-          word_bank.select! { |word| word.include?(letter) }
+          word_bank.reject! { |word| word[position].upcase == letter.upcase }
+          word_bank.select! { |word| word.upcase.include?(letter.upcase) }
         end
       end
     end
