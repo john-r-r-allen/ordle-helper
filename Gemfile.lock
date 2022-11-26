@@ -6,6 +6,7 @@ GEM
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
+    argv (3.0.0)
     ast (2.4.2)
     coderay (1.1.3)
     colorize (0.8.1)
@@ -67,6 +68,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport
+  argv (~> 3.0)
   colorize (~> 0.8.1)
   dotenv
   pry

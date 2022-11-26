@@ -7,3 +7,5 @@ gem "ramsey_cop"
 gem "rspec"
 
 gem "colorize", "~> 0.8.1"
+
+gem "argv", "~> 3.0"
