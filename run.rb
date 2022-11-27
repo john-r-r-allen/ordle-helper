@@ -1,7 +1,9 @@
 require_relative "lib/ordle_helper"
 
 
-OrdleHelper::Play.new.call
+play = OrdleHelper::Play.new
+play.determine_and_initiate_game
+# play.call
 #
 # winning_words = OrdleHelper::WinningWord.new
 # remove_winners = ENV["REMOVE_WINNING_WORDS"]&.split&.compact || []

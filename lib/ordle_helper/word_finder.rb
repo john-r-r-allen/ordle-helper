@@ -39,7 +39,7 @@ module OrdleHelper
           raise "Invalid response. The only valid responses are 'N', 'Y', and 'G'."
         end
 
-        if correct_letters.values == word.split("")
+        if correct_letters.values == word.split("") && position == 4
           puts "Great job on getting the correct word of #{word}!".light_green
           return "DONE"
         end
