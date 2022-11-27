@@ -1,6 +1,7 @@
 module OrdleHelper
   class WordFinder
     WORD_BANK = "word_bank.csv".freeze
+    GUESSED_CORRECT_WORD = "GGGGG".freeze
 
     attr_accessor :word_bank
 
@@ -12,36 +13,38 @@ module OrdleHelper
       @word_bank = CSV.read(WORD_BANK).map(&:first)
     end
 
-    def add_guess(word)
+    def add_guess(word:, game_number: 1)
       _ = guesses
       _ = correct_letters
       _ = not_included_letters
       _ = included_letters_wrong_spot
       _ = included_letters_with_known_number_of_occurrences
       add_guessed_word(word)
-      word.size.times do |position|
-        letter = word[position]
-        puts "What was the color for #{word[position]} in position #{position + 1}? ".light_blue +
-               "Please enter one of the following letters: ".light_blue +
-               "\n\t(N)one" +
-               "\n\t(Y)ellow".light_yellow +
-               "\n\t(G)reen".light_green
-        input = gets.chomp.upcase
+      puts "What was the colors for #{word} in game #{game_number}?".light_blue +
+             "\nPlease enter one of the following letters for each letter in the word ".light_blue +
+             "(Example: ".light_blue + "NNN" + "G".light_green + "N" + "):".light_blue +
+             "\n\t(N)one" +
+             "\n\t(Y)ellow".light_yellow +
+             "\n\t(G)reen".light_green
+      inputs = gets.chomp.upcase
 
+
+
+      if inputs == GUESSED_CORRECT_WORD
+        puts "Great job on getting the correct word of #{word}!".light_green
+        return "DONE"
+      end
+
+      inputs.split("").each_with_index do |input, position|
         case input
         when "G"
-          add_to_correct_letters(position:, letter:)
+          add_to_correct_letters(position:, letter: word[position])
         when "Y"
-          add_to_included_letters_wrong_spot(position:, letter:)
+          add_to_included_letters_wrong_spot(position:, letter: word[position])
         when "N"
-          add_to_not_included_letters(letter:, guess: word, position:)
+          add_to_not_included_letters(letter: word[position], guess: word, position:)
         else
           raise "Invalid response. The only valid responses are 'N', 'Y', and 'G'."
-        end
-
-        if correct_letters.values == word.split("") && position == 4
-          puts "Great job on getting the correct word of #{word}!".light_green
-          return "DONE"
         end
       end
       call
@@ -239,7 +242,11 @@ module OrdleHelper
 
     def add_to_correct_letters(position:, letter:)
       return if @correct_letters[position] == letter
-      raise "Attempting to set a new correct letter in position #{position + 1}." unless correct_letters[position].blank?
+      unless correct_letters[position].blank?
+        puts "Attempting to set a new correct letter in position #{position + 1}.".red +
+               "\nAttemping to set letter #{letter} where #{@correct_letters[position]} is already set.".red
+        raise "Attempted to set new letter as correct for given position. Failing."
+      end
 
       @correct_letters[position] = letter
     end

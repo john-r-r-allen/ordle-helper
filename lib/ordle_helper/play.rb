@@ -9,7 +9,7 @@ module OrdleHelper
     end
 
     def determine_and_initiate_game
-      puts "Which ordle game are you playing?".light_blue +
+      puts "Which ordle game are you playing? ".light_blue +
              "Please Enter one of the following letters:".light_blue +
              "\n\t(W)ordle" +
              "\n\t(Q)uordle" +
@@ -38,7 +38,11 @@ module OrdleHelper
         return if %w(DONE QUIT EXIT STOP).include?(input)
         raise "#{input} is not a valid word" unless OrdleHelper::WordFinder.word_bank_contains?(input)
 
-        games.each { |game| return if game.add_guess(input) == "DONE" }
+        games.each_with_index do |game, index|
+          games.delete(game) if game.add_guess(word: input, game_number: index + 1) == "DONE"
+        end
+
+        return if games.size.zero?
       end
     end
   end
