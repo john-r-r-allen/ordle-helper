@@ -31,6 +31,7 @@ module OrdleHelper
       puts "Initiating word finder.".light_blue
       games = []
       game_instances.times { |i| games[i] = OrdleHelper::WordFinder.new }
+      finished_games = []
 
       MAX_NUMBER_OF_TURNS.times do |_turn|
         puts "Enter your guess. If you would like to exit, type 'done' and press Enter/Return.".light_blue
@@ -39,10 +40,12 @@ module OrdleHelper
         raise "#{input} is not a valid word" unless OrdleHelper::WordFinder.word_bank_contains?(input)
 
         games.each_with_index do |game, index|
-          games.delete(game) if game.add_guess(word: input, game_number: index + 1) == "DONE"
+          next if finished_games.include?(game)
+
+          finished_games << game if game.add_guess(word: input, game_number: index + 1) == "DONE"
         end
 
-        return if games.size.zero?
+        return if games.size == finished_games.size
       end
     end
   end
