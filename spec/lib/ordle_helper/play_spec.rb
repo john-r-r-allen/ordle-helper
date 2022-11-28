@@ -1,5 +1,4 @@
 require_relative "../../../lib/ordle_helper"
-require "stringio"
 
 RSpec.describe OrdleHelper::Play do
   let(:subject) { described_class.new(input: input, output: output) }
@@ -22,6 +21,16 @@ RSpec.describe OrdleHelper::Play do
           )
         )
       end
+
+      describe "when the option is passed lowercase" do
+        let(:input) { StringIO.new("w\n") }
+
+        it "calls the call method with no parameters" do
+          expect(subject).to receive(:call).with(no_args).once
+
+          subject.determine_and_initiate_game
+        end
+      end
     end
 
     describe "when quordle is selected (option Q)" do
@@ -32,6 +41,16 @@ RSpec.describe OrdleHelper::Play do
 
         subject.determine_and_initiate_game
       end
+
+      describe "when the option is passed lowercase" do
+        let(:input) { StringIO.new("q\n") }
+
+        it "calls the call method with no parameters" do
+          expect(subject).to receive(:call).with(4).once
+
+          subject.determine_and_initiate_game
+        end
+      end
     end
 
     describe "when octordle is selected (option O)" do
@@ -41,6 +60,28 @@ RSpec.describe OrdleHelper::Play do
         expect(subject).to receive(:call).with(8).once
 
         subject.determine_and_initiate_game
+      end
+
+      describe "when the option is passed lowercase" do
+        let(:input) { StringIO.new("o\n") }
+
+        it "calls the call method with no parameters" do
+          expect(subject).to receive(:call).with(8).once
+
+          subject.determine_and_initiate_game
+        end
+      end
+    end
+
+    describe "when given an invalid option" do
+      let(:input) { StringIO.new("what the heck am I doing?!?!?\n") }
+
+      it "raises an error" do
+        expect(subject).not_to receive(:call)
+
+        expect { subject.determine_and_initiate_game }.to(
+          raise_error(StandardError, "#{input.string.chomp.upcase} is not a valid response.")
+        )
       end
     end
   end
