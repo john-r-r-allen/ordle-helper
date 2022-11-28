@@ -2,11 +2,7 @@ module OrdleHelper
   class Play
     MAX_NUMBER_OF_TURNS = 13
 
-    attr_accessor :guess_number
-
-    def initialize
-      @guess_number = 0
-    end
+    def initialize; end
 
     def determine_and_initiate_game
       puts "Which ordle game are you playing? ".light_blue +
