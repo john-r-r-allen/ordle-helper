@@ -2,6 +2,14 @@ module OrdleHelper
   class Play
     MAX_NUMBER_OF_TURNS = 13
     EXIT_WORDS = %w(DONE QUIT EXIT STOP).freeze
+    MESSAGES = {
+      GAME_SELECTION: "Which ordle game are you playing? Please enter one of the following letters:".light_blue +
+        "\n\t(W)ordle" +
+        "\n\t(Q)uordle" +
+        "\n\t(O)ctordle",
+      GAME_START: "Initiating word finder.".light_blue,
+      GUESS_PROMPT: "Enter your guess. If you would like to exit, type 'done' and press Enter/Return.".light_blue
+    }.freeze
 
     attr_reader :input, :output, :games, :finished_games
 
@@ -13,11 +21,7 @@ module OrdleHelper
     end
 
     def determine_and_initiate_game
-      output.puts "Which ordle game are you playing? ".light_blue +
-             "Please enter one of the following letters:".light_blue +
-             "\n\t(W)ordle" +
-             "\n\t(Q)uordle" +
-             "\n\t(O)ctordle"
+      output.puts MESSAGES[:GAME_SELECTION]
       user_input = input.gets.chomp.upcase
       case user_input
       when "W"
@@ -32,16 +36,17 @@ module OrdleHelper
     end
 
     def call(game_instances = 1)
-      output.puts "Initiating word finder.".light_blue
+      output.puts MESSAGES[:GAME_START]
       game_instances.times { |i| games[i] = OrdleHelper::WordFinder.new }
 
       MAX_NUMBER_OF_TURNS.times do |_turn|
-        output.puts "Enter your guess. If you would like to exit, type 'done' and press Enter/Return.".light_blue
+        output.puts MESSAGES[:GUESS_PROMPT]
         user_input = gets.chomp.upcase
-        return if EXIT_WORDS.include?(user_input)
+        break if EXIT_WORDS.include?(user_input)
+
         raise "#{user_input} is not a valid word" unless OrdleHelper::WordFinder.word_bank_contains?(user_input)
         add_guess_to_games(user_input)
-        return if all_games_completed?
+        break if all_games_completed?
       end
     end
 
