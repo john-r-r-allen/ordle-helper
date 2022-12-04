@@ -1,8 +1,53 @@
 require_relative "../../../lib/ordle_helper"
 
+PUTS_ENDING_OUPUT = "\n"
+
 RSpec.describe OrdleHelper::Play do
   let(:subject) { described_class.new(input: input, output: output) }
   let(:output) { StringIO.new }
+
+  describe "constant values" do
+    it "MAX_NUMBER_OF_TURNS has not changed" do
+      expect(described_class::MAX_NUMBER_OF_TURNS).to eq(13)
+    end
+
+    it "EXIT_WORDS has not changed" do
+      expect(described_class::EXIT_WORDS).to eq(%w(DONE QUIT EXIT STOP))
+    end
+
+    context "MESSAGES" do
+      it "is a hash" do
+        expect(described_class::MESSAGES.is_a?(Hash)).to be true
+      end
+
+      it "has keys of GAME_SELECTION, GAME_START, and GUESS_PROMPT" do
+        expect(described_class::MESSAGES.key?(:GAME_SELECTION)).to be true
+        expect(described_class::MESSAGES.key?(:GAME_START)).to be true
+        expect(described_class::MESSAGES.key?(:GUESS_PROMPT)).to be true
+      end
+
+      it "MESSAGES[:GAME_SELECTION] has not changed" do
+        expect(described_class::MESSAGES[:GAME_SELECTION]).to(
+          eq(
+            "Which ordle game are you playing? Please enter one of the following letters:".light_blue +
+              "\n\t(W)ordle" +
+              "\n\t(Q)uordle" +
+              "\n\t(O)ctordle"
+          )
+        )
+      end
+
+      it "MESSAGES[:GAME_START] has not changed" do
+        expect(described_class::MESSAGES[:GAME_START]).to eq("Initiating word finder.".light_blue)
+      end
+
+      it "MESSAGES[:GUESS_PROMPT] has not changed" do
+        expect(described_class::MESSAGES[:GUESS_PROMPT]).to(
+          eq("Enter your guess. If you would like to exit, type 'done' and press Enter/Return.".light_blue)
+        )
+      end
+    end
+  end
 
   describe "#determine_and_initiate_game" do
     describe "when wordle is selected (option W)" do
@@ -13,13 +58,7 @@ RSpec.describe OrdleHelper::Play do
 
         subject.determine_and_initiate_game
 
-        expect(output.string).to(
-          eq(
-            "Which ordle game are you playing? ".light_blue +
-              "Please enter one of the following letters:".light_blue +
-              "\n\t(W)ordle\n\t(Q)uordle\n\t(O)ctordle\n"
-          )
-        )
+        expect(output.string).to eq(described_class::MESSAGES[:GAME_SELECTION] + PUTS_ENDING_OUPUT)
       end
 
       describe "when the option is passed lowercase" do
