@@ -1,5 +1,5 @@
 module OrdleHelper
-  class WordFinder
+  class WordFinder # rubocop:disable Metrics/ClassLength
     WORD_BANK = "word_bank.csv".freeze
     GUESSED_CORRECT_WORD = "GGGGG".freeze
 
@@ -13,22 +13,22 @@ module OrdleHelper
       @word_bank = CSV.read(WORD_BANK).map(&:first)
     end
 
-    def add_guess(word:, game_number: 1)
+    def add_guess(word:, game_number: 1) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       _ = guesses
       _ = correct_letters
       _ = not_included_letters
       _ = included_letters_wrong_spot
       _ = included_letters_with_known_number_of_occurrences
       add_guessed_word(word)
+      # rubocop:disable Style/StringConcatenation
       puts "What was the colors for #{word} in game #{game_number}?".light_blue +
-             "\nPlease enter one of the following letters for each letter in the word ".light_blue +
-             "(Example: ".light_blue + "NNN" + "G".light_green + "N" + "):".light_blue +
-             "\n\t(N)one" +
-             "\n\t(Y)ellow".light_yellow +
-             "\n\t(G)reen".light_green
+           "\nPlease enter one of the following letters for each letter in the word ".light_blue +
+           "(Example: ".light_blue + "NNN" + "G".light_green + "N" + "):".light_blue +
+           "\n\t(N)one" +
+           "\n\t(Y)ellow".light_yellow +
+           "\n\t(G)reen".light_green
+      # rubocop:enable Style/StringConcatenation
       inputs = gets.chomp.upcase
-
-
 
       if inputs == GUESSED_CORRECT_WORD
         puts "Great job on getting the correct word of #{word}!".light_green
@@ -51,50 +51,50 @@ module OrdleHelper
       print_keyboard_state
     end
 
-    def print_keyboard_state
+    def print_keyboard_state # rubocop:disable Metrics/PerceivedComplexity, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/AbcSize
       line_one = "QWERTYUIOP".split("")
       line_two = "ASDFGHJKL".split("")
       line_three = "ZXCVBNM".split("")
 
       keyboard_state = ""
       line_one.each do |letter|
-        if not_included_letters.include?(letter)
-          keyboard_state += letter.black
-        elsif correct_letters.values.join("").split("").include?(letter)
-          keyboard_state += letter.green
-        elsif included_letters_wrong_spot.values.join("").split("").include?(letter)
-          keyboard_state += letter.yellow
-        else
-          keyboard_state += letter
-        end
+        keyboard_state += if not_included_letters.include?(letter)
+                            letter.black
+                          elsif correct_letters.values.join("").split("").include?(letter)
+                            letter.green
+                          elsif included_letters_wrong_spot.values.join("").split("").include?(letter)
+                            letter.yellow
+                          else
+                            letter
+                          end
         keyboard_state += " "
       end
 
       keyboard_state += "\n "
       line_two.each do |letter|
-        if not_included_letters.include?(letter)
-          keyboard_state += letter.black
-        elsif correct_letters.values.join("").split("").include?(letter)
-          keyboard_state += letter.green
-        elsif included_letters_wrong_spot.values.join("").split("").include?(letter)
-          keyboard_state += letter.yellow
-        else
-          keyboard_state += letter
-        end
+        keyboard_state += if not_included_letters.include?(letter)
+                            letter.black
+                          elsif correct_letters.values.join("").split("").include?(letter)
+                            letter.green
+                          elsif included_letters_wrong_spot.values.join("").split("").include?(letter)
+                            letter.yellow
+                          else
+                            letter
+                          end
         keyboard_state += " "
       end
 
       keyboard_state += "\n  "
       line_three.each do |letter|
-        if not_included_letters.include?(letter)
-          keyboard_state += letter.black
-        elsif correct_letters.values.join("").split("").include?(letter)
-          keyboard_state += letter.green
-        elsif included_letters_wrong_spot.values.join("").split("").include?(letter)
-          keyboard_state += letter.yellow
-        else
-          keyboard_state += letter
-        end
+        keyboard_state += if not_included_letters.include?(letter)
+                            letter.black
+                          elsif correct_letters.values.join("").split("").include?(letter)
+                            letter.green
+                          elsif included_letters_wrong_spot.values.join("").split("").include?(letter)
+                            letter.yellow
+                          else
+                            letter
+                          end
         keyboard_state += " "
       end
 
@@ -114,11 +114,9 @@ module OrdleHelper
 
     def verify_consistent_information
       return if included_letters.empty? || not_included_letters.empty?
+
       included_letters.each do |included_letter|
-        if not_included_letters.include?(included_letter)
-          binding.pry
-          raise "Inconsistent information provided."
-        end
+        raise "Inconsistent information provided." if not_included_letters.include?(included_letter)
       end
     end
 
@@ -135,7 +133,7 @@ module OrdleHelper
       @included_letters
     end
 
-    def verify_guesses
+    def verify_guesses # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       guesses.each do |guess|
         output = ""
         guess.size.times do |position|
@@ -146,13 +144,16 @@ module OrdleHelper
           elsif included_letters_wrong_spot[position].include?(guess[position])
             output += guess[position].light_yellow
           else
-            raise "Letter without information: #{guess[position]}." unless included_letters_with_known_number_of_occurrences.key?(guess[position])
+            unless included_letters_with_known_number_of_occurrences.key?(guess[position])
+              raise "Letter without information: #{guess[position]}."
+            end
 
-            if included_letters_with_known_number_of_occurrences[guess[position]] < guess.split("").count(guess[position])
-              output += guess[position]
-            else
+            unless included_letters_with_known_number_of_occurrences[guess[position]] < guess.split("").count(guess[position]) # rubocop:disable Layout/LineLength
               raise "Unknown error occurred."
             end
+
+            output += guess[position]
+
           end
         end
         puts output
@@ -169,7 +170,7 @@ module OrdleHelper
       correct_letters.each do |position, letter|
         next if letter.empty?
 
-        word_bank.select! { |word| word[position].upcase == letter.upcase }
+        word_bank.select! { |word| word[position].casecmp(letter).zero? }
       end
     end
 
@@ -178,7 +179,7 @@ module OrdleHelper
         next if letters.empty?
 
         letters.each do |letter|
-          word_bank.reject! { |word| word[position].upcase == letter.upcase }
+          word_bank.reject! { |word| word[position].casecmp(letter).zero? }
           word_bank.select! { |word| word.upcase.include?(letter.upcase) }
         end
       end
@@ -186,7 +187,7 @@ module OrdleHelper
 
     def output_current_word_bank_state
       puts "#{word_bank.size} possible words:"
-      return if word_bank.reject { |word| potential_plural?(word) }.size > 10
+      return if word_bank.reject { |word| potential_plural?(word) }.count > 10 # rubocop:disable Performance/Count
 
       word_bank.each do |word|
         if potential_plural?(word)
@@ -245,9 +246,10 @@ module OrdleHelper
 
     def add_to_correct_letters(position:, letter:)
       return if @correct_letters[position] == letter
+
       unless correct_letters[position].blank?
         puts "Attempting to set a new correct letter in position #{position + 1}.".red +
-               "\nAttemping to set letter #{letter} where #{@correct_letters[position]} is already set.".red
+             "\nAttemping to set letter #{letter} where #{@correct_letters[position]} is already set.".red
         raise "Attempted to set new letter as correct for given position. Failing."
       end
 
@@ -269,8 +271,7 @@ module OrdleHelper
     end
 
     def included_letters_with_known_number_of_occurrences
-      @included_letters_with_known_number_of_occurrences ||= {
-      }
+      @included_letters_with_known_number_of_occurrences ||= {}
     end
   end
 end

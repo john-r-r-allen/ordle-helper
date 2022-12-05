@@ -1,9 +1,9 @@
 require_relative "../../../lib/ordle_helper"
 
-PUTS_ENDING = "\n"
+PUTS_ENDING = "\n".freeze
 
 RSpec.describe OrdleHelper::Play do
-  let(:subject) { described_class.new(input: input, output: output) }
+  let(:subject) { described_class.new(input:, output:) }
   let(:output) { StringIO.new }
 
   describe "constant values" do
@@ -27,6 +27,7 @@ RSpec.describe OrdleHelper::Play do
       end
 
       it "MESSAGES[:GAME_SELECTION] has not changed" do
+        # rubocop:disable Style/StringConcatenation, Style/LineEndConcatenation
         expect(described_class::MESSAGES[:GAME_SELECTION]).to(
           eq(
             "Which ordle game are you playing? Please enter one of the following letters:".light_blue +
@@ -35,6 +36,7 @@ RSpec.describe OrdleHelper::Play do
               "\n\t(O)ctordle"
           )
         )
+        # rubocop:enable Style/StringConcatenation, Style/LineEndConcatenation
       end
 
       it "MESSAGES[:GAME_START] has not changed" do

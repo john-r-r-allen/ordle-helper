@@ -3,10 +3,12 @@ module OrdleHelper
     MAX_NUMBER_OF_TURNS = 13
     EXIT_WORDS = %w(DONE QUIT EXIT STOP).freeze
     MESSAGES = {
+      # rubocop:disable Style/LineEndConcatenation, Style/StringConcatenation
       GAME_SELECTION: "Which ordle game are you playing? Please enter one of the following letters:".light_blue +
-        "\n\t(W)ordle" +
-        "\n\t(Q)uordle" +
-        "\n\t(O)ctordle",
+                      "\n\t(W)ordle" +
+                      "\n\t(Q)uordle" +
+                      "\n\t(O)ctordle",
+      # rubocop:enable Style/LineEndConcatenation, Style/StringConcatenation
       GAME_START: "Initiating word finder.".light_blue,
       GUESS_PROMPT: "Enter your guess. If you would like to exit, type 'done' and press Enter/Return.".light_blue
     }.freeze
@@ -20,7 +22,7 @@ module OrdleHelper
       @finished_games = []
     end
 
-    def determine_and_initiate_game
+    def determine_and_initiate_game # rubocop:disable Metrics/MethodLength
       output.puts MESSAGES[:GAME_SELECTION]
       user_input = input.gets.chomp.upcase
       case user_input
@@ -35,7 +37,7 @@ module OrdleHelper
       end
     end
 
-    def call(game_instances = 1)
+    def call(game_instances = 1) # rubocop:disable Metrics/AbcSize
       output.puts MESSAGES[:GAME_START]
       game_instances.times { |i| games[i] = OrdleHelper::WordFinder.new }
 
@@ -45,6 +47,7 @@ module OrdleHelper
         break if EXIT_WORDS.include?(user_input)
 
         raise "#{user_input} is not a valid word" unless OrdleHelper::WordFinder.word_bank_contains?(user_input)
+
         add_guess_to_games(user_input)
         break if all_games_completed?
       end
@@ -53,6 +56,7 @@ module OrdleHelper
     def add_guess_to_games(word)
       games.each_with_index do |game, index|
         next if finished_games.include?(game)
+
         game_number = index + 1
 
         finished_games << game if game.add_guess(word:, game_number:) == "DONE"

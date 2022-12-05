@@ -19,20 +19,21 @@ module OrdleHelper
     end
 
     def add_winner(word)
-      raise RuntimeError, invalid_winner_message(word) unless WordFinder.word_bank_contains?(word)
+      raise invalid_winner_message(word) unless WordFinder.word_bank_contains?(word)
 
-      if winning_words.has_key?(word)
-        winning_words[word] = winning_words[word] + 1
-      else
-        winning_words[word] = 1
-      end
+      winning_words[word] =
+        if winning_words.key?(word)
+          winning_words[word] + 1
+        else
+          1
+        end
       puts "Added winning word: #{word}".green
 
       save_to_winning_words_file
     end
 
     def remove_winner(word)
-      raise RuntimeError, invalid_removal_message(word) unless winning_words.include?(word)
+      raise invalid_removal_message(word) unless winning_words.include?(word)
 
       if winning_words[word] <= 1
         winning_words.delete(word)
@@ -59,13 +60,13 @@ module OrdleHelper
           csv << winning_word
         end
       end
-      File.open(WINNING_WORDS_FILE, 'w') { |f| f.write(file_contents) }
+      File.open(WINNING_WORDS_FILE, "w") { |f| f.write(file_contents) }
     end
 
     def print_winners
       puts "Winning words"
       winning_words.each do |word, wins|
-        puts "\t#{word} has #{wins} win#{wins == 1  ? "": "s"}"
+        puts "\t#{word} has #{wins} win#{wins == 1 ? '' : 's'}"
       end
     end
   end
