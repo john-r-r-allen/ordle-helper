@@ -1,6 +1,6 @@
 require_relative "../../../lib/ordle_helper"
 
-PUTS_ENDING_OUPUT = "\n"
+PUTS_ENDING = "\n"
 
 RSpec.describe OrdleHelper::Play do
   let(:subject) { described_class.new(input: input, output: output) }
@@ -58,7 +58,7 @@ RSpec.describe OrdleHelper::Play do
 
         subject.determine_and_initiate_game
 
-        expect(output.string).to eq(described_class::MESSAGES[:GAME_SELECTION] + PUTS_ENDING_OUPUT)
+        expect(output.string).to eq(described_class::MESSAGES[:GAME_SELECTION] + PUTS_ENDING)
       end
 
       describe "when the option is passed lowercase" do
