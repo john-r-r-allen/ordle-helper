@@ -186,7 +186,7 @@ module OrdleHelper
 
     def output_current_word_bank_state
       puts "#{word_bank.size} possible words:"
-      return if word_bank.size > 10
+      return if word_bank.reject { |word| potential_plural?(word) }.size > 10
 
       word_bank.each do |word|
         if potential_plural?(word)
