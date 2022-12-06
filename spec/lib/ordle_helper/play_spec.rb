@@ -1,5 +1,3 @@
-require_relative "../../../lib/ordle_helper"
-
 PUTS_ENDING = "\n".freeze
 
 RSpec.describe OrdleHelper::Play do
@@ -124,6 +122,38 @@ RSpec.describe OrdleHelper::Play do
           raise_error(StandardError, "#{input.string.chomp.upcase} is not a valid response.")
         )
       end
+    end
+  end
+
+  describe "#add_guess_to_game" do
+    fcontext "when the guess is the correct word" do
+      let(:example_game) { OrdleHelper::WordFinder.new(input:, output:) }
+      let(:input) { StringIO.new("GGGGG\n") }
+      let(:word) { "zooms" }
+      let(:game_number) { 1 }
+
+      it "adds the guess and marks the game as finished" do
+        expect(subject.finished_games).to eq([])
+
+        subject.add_guess_to_game(word:, game: example_game, game_number:)
+        expect(subject.finished_games).to eq([example_game])
+        expect(output.string).to(
+          eq(
+            "Added guess of zooms.".light_green +
+              "What were the colors for #{word} in game #{game_number}?".light_blue +
+              "\nPlease enter one of the following letters for each letter in the word ".light_blue +
+              "(Example: ".light_blue + "NNN" + "G".light_green + "N" + "):".light_blue +
+              "\n\t(N)one" +
+              "\n\t(Y)ellow".light_yellow +
+              "\n\t(G)reen".light_green +
+              PUTS_ENDING
+             )
+        )
+      end
+    end
+
+    context "when the guess is not the correct word" do
+      it "adds the guess and does not mark the game as finished"
     end
   end
 end

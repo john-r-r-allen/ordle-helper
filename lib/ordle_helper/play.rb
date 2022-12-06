@@ -43,7 +43,7 @@ module OrdleHelper
 
       MAX_NUMBER_OF_TURNS.times do |_turn|
         output.puts MESSAGES[:GUESS_PROMPT]
-        user_input = gets.chomp.upcase
+        user_input = input.gets.chomp.upcase
         break if EXIT_WORDS.include?(user_input)
 
         raise "#{user_input} is not a valid word" unless OrdleHelper::WordFinder.word_bank_contains?(user_input)
@@ -54,13 +54,13 @@ module OrdleHelper
     end
 
     def add_guess_to_games(word)
-      games.each_with_index do |game, index|
-        next if finished_games.include?(game)
+      games.each_with_index { |game, index| add_guess_to_game(word:, game:, game_number: index + 1) }
+    end
 
-        game_number = index + 1
+    def add_guess_to_game(word:, game:, game_number:)
+      return if finished_games.include?(game)
 
-        finished_games << game if game.add_guess(word:, game_number:) == "DONE"
-      end
+      finished_games << game if game.add_guess(word:, game_number:) == "DONE"
     end
 
     def all_games_completed?

@@ -3,13 +3,15 @@ module OrdleHelper
     WORD_BANK = "word_bank.csv".freeze
     GUESSED_CORRECT_WORD = "GGGGG".freeze
 
-    attr_accessor :word_bank
+    attr_accessor :input, :output, :word_bank
 
     def self.word_bank_contains?(word)
       CSV.read(WORD_BANK).map(&:first).map(&:upcase).include?(word)
     end
 
-    def initialize
+    def initialize(input: $stdin, output: $stdout)
+      @input = input
+      @output = output
       @word_bank = CSV.read(WORD_BANK).map(&:first)
     end
 
@@ -21,14 +23,14 @@ module OrdleHelper
       _ = included_letters_with_known_number_of_occurrences
       add_guessed_word(word)
       # rubocop:disable Style/StringConcatenation
-      puts "What was the colors for #{word} in game #{game_number}?".light_blue +
+      output.puts "What were the colors for #{word} in game #{game_number}?".light_blue +
            "\nPlease enter one of the following letters for each letter in the word ".light_blue +
            "(Example: ".light_blue + "NNN" + "G".light_green + "N" + "):".light_blue +
            "\n\t(N)one" +
            "\n\t(Y)ellow".light_yellow +
            "\n\t(G)reen".light_green
       # rubocop:enable Style/StringConcatenation
-      inputs = gets.chomp.upcase
+      inputs = input.gets.chomp.upcase
 
       if inputs == GUESSED_CORRECT_WORD
         puts "Great job on getting the correct word of #{word}!".light_green
@@ -98,7 +100,7 @@ module OrdleHelper
         keyboard_state += " "
       end
 
-      puts keyboard_state
+      output.puts keyboard_state
     end
 
     def call
@@ -135,14 +137,14 @@ module OrdleHelper
 
     def verify_guesses # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       guesses.each do |guess|
-        output = ""
+        message = ""
         guess.size.times do |position|
           if not_included_letters.include?(guess[position])
-            output += guess[position]
+            message += guess[position]
           elsif correct_letters[position] == guess[position]
-            output += guess[position].light_green
+            message += guess[position].light_green
           elsif included_letters_wrong_spot[position].include?(guess[position])
-            output += guess[position].light_yellow
+            message += guess[position].light_yellow
           else
             unless included_letters_with_known_number_of_occurrences.key?(guess[position])
               raise "Letter without information: #{guess[position]}."
@@ -152,11 +154,11 @@ module OrdleHelper
               raise "Unknown error occurred."
             end
 
-            output += guess[position]
+            message += guess[position]
 
           end
         end
-        puts output
+        output.puts message
       end
     end
 
@@ -186,14 +188,14 @@ module OrdleHelper
     end
 
     def output_current_word_bank_state
-      puts "#{word_bank.size} possible words:"
+      output.puts "#{word_bank.size} possible words:"
       return if word_bank.reject { |word| potential_plural?(word) }.count > 10 # rubocop:disable Performance/Count
 
       word_bank.each do |word|
         if potential_plural?(word)
-          puts "\t#{word} - Potential Plural".light_yellow
+          output.puts "\t#{word} - Potential Plural".light_yellow
         else
-          puts "\t#{word}".light_cyan
+          output.puts "\t#{word}".light_cyan
         end
       end
     end
@@ -209,7 +211,7 @@ module OrdleHelper
     def add_guessed_word(word)
       @guesses << word
 
-      puts "Added guess of #{word}.".light_green
+      output.puts "Added guess of #{word}.".light_green
     end
 
     def not_included_letters
@@ -218,20 +220,21 @@ module OrdleHelper
 
     def add_to_not_included_letters(letter:, guess:, position:)
       return if not_included_letters.include?(letter)
+      return if
       if guess.split("").count(letter) > 1 && guess[0..position - 1].include?(letter)
-        return add_occurrence_limit(letter:, guess:, position:)
+        return add_occurrence_limit(letter:, guess:)
       end
 
       @not_included_letters << letter
     end
 
-    def add_occurrence_limit(letter:, guess:, position:)
+    def add_occurrence_limit(letter:, guess:)
       valid_number_of_occurrences = 0
-      position.times do |i|
+      guess.size.times do |i|
         valid_number_of_occurrences += 1 if guess[i] == letter
       end
       @included_letters_with_known_number_of_occurrences[letter] = valid_number_of_occurrences
-      puts "Set occurrence limit for #{letter} to #{valid_number_of_occurrences}".light_green
+      output.puts "Set occurrence limit for #{letter} to #{valid_number_of_occurrences}".light_green
     end
 
     def correct_letters
@@ -248,7 +251,7 @@ module OrdleHelper
       return if @correct_letters[position] == letter
 
       unless correct_letters[position].blank?
-        puts "Attempting to set a new correct letter in position #{position + 1}.".red +
+        output.puts "Attempting to set a new correct letter in position #{position + 1}.".red +
              "\nAttemping to set letter #{letter} where #{@correct_letters[position]} is already set.".red
         raise "Attempted to set new letter as correct for given position. Failing."
       end
