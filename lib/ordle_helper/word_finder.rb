@@ -2,8 +2,18 @@ module OrdleHelper
   class WordFinder # rubocop:disable Metrics/ClassLength
     WORD_BANK = "word_bank.csv".freeze
     GUESSED_CORRECT_WORD = "GGGGG".freeze
+    CORRECT_LETTER = "G".freeze
+    RIGHT_LETTER_WRONG_SPOT = "Y".freeze
+    NOT_INCLUDED_LETTER = "N".freeze
 
-    attr_accessor :input, :output, :word_bank
+    attr_accessor :input,
+                  :output,
+                  :word_bank,
+                  :guesses,
+                  :not_included_letters,
+                  :correct_letters,
+                  :included_letters_wrong_spot,
+                  :included_letters_with_known_number_of_occurrences
 
     def self.word_bank_contains?(word)
       CSV.read(WORD_BANK).map(&:first).map(&:upcase).include?(word)
@@ -13,14 +23,26 @@ module OrdleHelper
       @input = input
       @output = output
       @word_bank = CSV.read(WORD_BANK).map(&:first)
+      @guesses = []
+      @not_included_letters = []
+      @correct_letters = {
+        0 => "",
+        1 => "",
+        2 => "",
+        3 => "",
+        4 => ""
+      }
+      @included_letters_wrong_spot ||= {
+        0 => %w(),
+        1 => %w(),
+        2 => %w(),
+        3 => %w(),
+        4 => %w()
+      }
+      @included_letters_with_known_number_of_occurrences = {}
     end
 
     def add_guess(word:, game_number: 1) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-      _ = guesses
-      _ = correct_letters
-      _ = not_included_letters
-      _ = included_letters_wrong_spot
-      _ = included_letters_with_known_number_of_occurrences
       add_guessed_word(word)
       # rubocop:disable Style/StringConcatenation
       output.puts "What were the colors for #{word} in game #{game_number}?".light_blue +
@@ -39,11 +61,11 @@ module OrdleHelper
 
       inputs.split("").each_with_index do |input, position|
         case input
-        when "G"
+        when CORRECT_LETTER
           add_to_correct_letters(position:, letter: word[position])
-        when "Y"
+        when RIGHT_LETTER_WRONG_SPOT
           add_to_included_letters_wrong_spot(position:, letter: word[position])
-        when "N"
+        when NOT_INCLUDED_LETTER
           add_to_not_included_letters(letter: word[position], guess: word, position:)
         else
           raise "Invalid response. The only valid responses are 'N', 'Y', and 'G'."
@@ -204,18 +226,10 @@ module OrdleHelper
       word.end_with?("s")
     end
 
-    def guesses
-      @guesses ||= []
-    end
-
     def add_guessed_word(word)
       @guesses << word
 
       output.puts "Added guess of #{word}.".light_green
-    end
-
-    def not_included_letters
-      @not_included_letters ||= []
     end
 
     def add_to_not_included_letters(letter:, guess:, position:)
@@ -237,16 +251,6 @@ module OrdleHelper
       output.puts "Set occurrence limit for #{letter} to #{valid_number_of_occurrences}".light_green
     end
 
-    def correct_letters
-      @correct_letters ||= {
-        0 => "",
-        1 => "",
-        2 => "",
-        3 => "",
-        4 => ""
-      }
-    end
-
     def add_to_correct_letters(position:, letter:)
       return if @correct_letters[position] == letter
 
@@ -259,22 +263,8 @@ module OrdleHelper
       @correct_letters[position] = letter
     end
 
-    def included_letters_wrong_spot
-      @included_letters_wrong_spot ||= {
-        0 => %w(),
-        1 => %w(),
-        2 => %w(),
-        3 => %w(),
-        4 => %w()
-      }
-    end
-
     def add_to_included_letters_wrong_spot(position:, letter:)
       @included_letters_wrong_spot[position] << letter
-    end
-
-    def included_letters_with_known_number_of_occurrences
-      @included_letters_with_known_number_of_occurrences ||= {}
     end
   end
 end
