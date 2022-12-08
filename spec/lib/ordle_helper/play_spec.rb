@@ -126,7 +126,7 @@ RSpec.describe OrdleHelper::Play do
   end
 
   describe "#add_guess_to_game" do
-    fcontext "when the guess is the correct word" do
+    context "when the guess is the correct word" do
       let(:example_game) { OrdleHelper::WordFinder.new(input:, output:) }
       let(:input) { StringIO.new("GGGGG\n") }
       let(:word) { "zooms" }

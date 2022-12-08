@@ -234,7 +234,6 @@ module OrdleHelper
 
     def add_to_not_included_letters(letter:, guess:, position:)
       return if not_included_letters.include?(letter)
-      return if
       if guess.split("").count(letter) > 1 && guess[0..position - 1].include?(letter)
         return add_occurrence_limit(letter:, guess:)
       end
