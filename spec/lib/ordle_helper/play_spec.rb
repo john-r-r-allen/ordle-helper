@@ -139,7 +139,7 @@ RSpec.describe OrdleHelper::Play do
         expect(subject.finished_games).to eq([example_game])
         expect(output.string).to(
           eq(
-            "Added guess of zooms.".light_green +
+            "Added guess of zooms.".light_green + "\n" +
               "What were the colors for #{word} in game #{game_number}?".light_blue +
               "\nPlease enter one of the following letters for each letter in the word ".light_blue +
               "(Example: ".light_blue + "NNN" + "G".light_green + "N" + "):".light_blue +
