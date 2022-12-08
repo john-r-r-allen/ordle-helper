@@ -1,9 +1,7 @@
-require_relative "../../../lib/ordle_helper"
-
-PUTS_ENDING_OUPUT = "\n"
+PUTS_ENDING = "\n".freeze
 
 RSpec.describe OrdleHelper::Play do
-  let(:subject) { described_class.new(input: input, output: output) }
+  let(:subject) { described_class.new(input:, output:) }
   let(:output) { StringIO.new }
 
   describe "constant values" do
@@ -27,6 +25,7 @@ RSpec.describe OrdleHelper::Play do
       end
 
       it "MESSAGES[:GAME_SELECTION] has not changed" do
+        # rubocop:disable Style/StringConcatenation, Style/LineEndConcatenation
         expect(described_class::MESSAGES[:GAME_SELECTION]).to(
           eq(
             "Which ordle game are you playing? Please enter one of the following letters:".light_blue +
@@ -35,6 +34,7 @@ RSpec.describe OrdleHelper::Play do
               "\n\t(O)ctordle"
           )
         )
+        # rubocop:enable Style/StringConcatenation, Style/LineEndConcatenation
       end
 
       it "MESSAGES[:GAME_START] has not changed" do
@@ -58,7 +58,7 @@ RSpec.describe OrdleHelper::Play do
 
         subject.determine_and_initiate_game
 
-        expect(output.string).to eq(described_class::MESSAGES[:GAME_SELECTION] + PUTS_ENDING_OUPUT)
+        expect(output.string).to eq(described_class::MESSAGES[:GAME_SELECTION] + PUTS_ENDING)
       end
 
       describe "when the option is passed lowercase" do
@@ -122,6 +122,40 @@ RSpec.describe OrdleHelper::Play do
           raise_error(StandardError, "#{input.string.chomp.upcase} is not a valid response.")
         )
       end
+    end
+  end
+
+  describe "#add_guess_to_game" do
+    context "when the guess is the correct word" do
+      let(:example_game) { OrdleHelper::WordFinder.new(input:, output:) }
+      let(:input) { StringIO.new("GGGGG\n") }
+      let(:word) { "zooms" }
+      let(:game_number) { 1 }
+
+      it "adds the guess and marks the game as finished" do
+        expect(subject.finished_games).to eq([])
+
+        subject.add_guess_to_game(word:, game: example_game, game_number:)
+        expect(subject.finished_games).to eq([example_game])
+        expect(output.string).to(
+          eq(
+            # rubocop:disable Style/StringConcatenation
+            "What were the colors for #{word} in game #{game_number}?".light_blue +
+            "\nPlease enter one of the following letters for each letter in the word ".light_blue +
+            "(Example: ".light_blue + "NNN" + "G".light_green + "N" + "):".light_blue +
+            "\n\t(N)one" +
+            "\n\t(Y)ellow".light_yellow +
+            "\n\t(G)reen".light_green + "\n" +
+            "Great job on getting the correct word of zooms!".light_green +
+            PUTS_ENDING
+            # rubocop:enable Style/StringConcatenation
+          )
+        )
+      end
+    end
+
+    context "when the guess is not the correct word" do
+      it "adds the guess and does not mark the game as finished"
     end
   end
 end
