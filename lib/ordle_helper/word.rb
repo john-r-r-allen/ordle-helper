@@ -37,6 +37,7 @@ module OrdleHelper
       raise "Incomplete guess feedback" unless guess_feedback.size == WORD_SIZE
       return "DONE" if guess_feedback == GUESSED_CORRECT_WORD
 
+      @guesses << guess
       handle_multiple_letter_occurrences(guess:, guess_feedback:) if guess_contains_duplicated_letters?(guess)
       guess_feedback.split("").each_with_index do |feedback, index|
         process_feedback(guess:, feedback:, index:)
@@ -47,7 +48,7 @@ module OrdleHelper
       guess.split("").tally.values.max != 1
     end
 
-    def handle_multiple_letter_occurrences(guess:, guess_feedback:)
+    def handle_multiple_letter_occurrences(guess:, guess_feedback:) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
       guess_array = guess.split("")
       guess_array.each_with_index do |letter, index|
         next if guess_array.tally[letter] == 1
@@ -62,7 +63,7 @@ module OrdleHelper
         next if included_letters_with_known_number_of_occurrences.key?(letter)
 
         @included_letters_with_known_number_of_occurrences[letter] =
-          position_and_feedback.reject { |_position, feedback| feedback == "N" }.size
+          position_and_feedback.reject { |_position, feedback| feedback == "N" }.count # rubocop:disable Performance/Count
       end
     end
 
@@ -86,7 +87,9 @@ module OrdleHelper
     end
 
     def add_to_included_letters_wrong_spot(guess:, index:)
-      @included_letters_wrong_spot[index] << guess[index] unless included_letters_wrong_spot[index].include?(guess[index])
+      return if included_letters_wrong_spot[index].include?(guess[index])
+
+      @included_letters_wrong_spot[index] << guess[index]
     end
 
     def add_to_not_included_letters(guess:, index:)

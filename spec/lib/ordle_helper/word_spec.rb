@@ -40,7 +40,7 @@ RSpec.describe OrdleHelper::Word do
           expect(subject).not_to receive(:handle_multiple_letter_occurrences)
           expect(subject).not_to receive(:process_feedback)
 
-          expect(subject.add_guess(guess:, guess_feedback: )).to eq("DONE")
+          expect(subject.add_guess(guess:, guess_feedback:)).to eq("DONE")
         end
       end
 

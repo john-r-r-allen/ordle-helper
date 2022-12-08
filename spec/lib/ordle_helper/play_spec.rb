@@ -139,6 +139,7 @@ RSpec.describe OrdleHelper::Play do
         expect(subject.finished_games).to eq([example_game])
         expect(output.string).to(
           eq(
+            # rubocop:disable Style/StringConcatenation
             "Added guess of zooms.".light_green + "\n" +
               "What were the colors for #{word} in game #{game_number}?".light_blue +
               "\nPlease enter one of the following letters for each letter in the word ".light_blue +
@@ -147,7 +148,8 @@ RSpec.describe OrdleHelper::Play do
               "\n\t(Y)ellow".light_yellow +
               "\n\t(G)reen".light_green +
               PUTS_ENDING
-             )
+            # rubocop:enable Style/StringConcatenation
+          )
         )
       end
     end

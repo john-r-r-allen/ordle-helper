@@ -46,11 +46,11 @@ module OrdleHelper
       add_guessed_word(word)
       # rubocop:disable Style/StringConcatenation
       output.puts "What were the colors for #{word} in game #{game_number}?".light_blue +
-           "\nPlease enter one of the following letters for each letter in the word ".light_blue +
-           "(Example: ".light_blue + "NNN" + "G".light_green + "N" + "):".light_blue +
-           "\n\t(N)one" +
-           "\n\t(Y)ellow".light_yellow +
-           "\n\t(G)reen".light_green
+                  "\nPlease enter one of the following letters for each letter in the word ".light_blue +
+                  "(Example: ".light_blue + "NNN" + "G".light_green + "N" + "):".light_blue +
+                  "\n\t(N)one" +
+                  "\n\t(Y)ellow".light_yellow +
+                  "\n\t(G)reen".light_green
       # rubocop:enable Style/StringConcatenation
       inputs = input.gets.chomp.upcase
 
@@ -209,7 +209,7 @@ module OrdleHelper
       end
     end
 
-    def output_current_word_bank_state
+    def output_current_word_bank_state # rubocop:disable Metrics/AbcSize
       output.puts "#{word_bank.size} possible words:"
       return if word_bank.reject { |word| potential_plural?(word) }.count > 10 # rubocop:disable Performance/Count
 
@@ -255,7 +255,7 @@ module OrdleHelper
 
       unless correct_letters[position].blank?
         output.puts "Attempting to set a new correct letter in position #{position + 1}.".red +
-             "\nAttemping to set letter #{letter} where #{@correct_letters[position]} is already set.".red
+                    "\nAttemping to set letter #{letter} where #{@correct_letters[position]} is already set.".red
         raise "Attempted to set new letter as correct for given position. Failing."
       end
 
