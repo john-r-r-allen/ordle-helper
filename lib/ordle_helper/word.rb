@@ -42,6 +42,8 @@ module OrdleHelper
       guess_feedback.split("").each_with_index do |feedback, index|
         process_feedback(guess:, feedback:, index:)
       end
+
+      verify_consistent_information
     end
 
     def guess_contains_duplicated_letters?(guess)
@@ -93,7 +95,35 @@ module OrdleHelper
     end
 
     def add_to_not_included_letters(guess:, index:)
-      @not_included_letters << guess[index] unless not_included_letters.include?(guess[index])
+      return if not_included_letters.include?(guess[index])
+      return if included_letters_with_known_number_of_occurrences.key?(guess[index])
+
+      @not_included_letters << guess[index]
+    end
+
+    def verify_consistent_information
+      return if included_letters.empty? || not_included_letters.empty?
+
+      included_letters.each do |letter|
+        next if included_letters_with_known_number_of_occurrences.key?(letter)
+
+        raise "Inconsistent information provided." if not_included_letters.include?(letter)
+      end
+    end
+
+    def included_letters
+      @included_letters = []
+
+      WORD_SIZE.times do |position|
+        @included_letters << correct_letters[position] unless correct_letters[position].blank?
+
+        included_letters_wrong_spot[position].each do |word|
+          @included_letters << word
+        end
+      end
+      @included_letters.uniq!
+
+      @included_letters
     end
   end
 end

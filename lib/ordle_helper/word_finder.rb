@@ -9,11 +9,7 @@ module OrdleHelper
     attr_accessor :input,
                   :output,
                   :word_bank,
-                  :guesses,
-                  :not_included_letters,
-                  :correct_letters,
-                  :included_letters_wrong_spot,
-                  :included_letters_with_known_number_of_occurrences
+                  :game_word
 
     def self.word_bank_contains?(word)
       CSV.read(WORD_BANK).map(&:first).map(&:upcase).include?(word)
@@ -23,27 +19,10 @@ module OrdleHelper
       @input = input
       @output = output
       @word_bank = CSV.read(WORD_BANK).map(&:first)
-      @guesses = []
-      @not_included_letters = []
-      @correct_letters = {
-        0 => "",
-        1 => "",
-        2 => "",
-        3 => "",
-        4 => ""
-      }
-      @included_letters_wrong_spot ||= {
-        0 => %w(),
-        1 => %w(),
-        2 => %w(),
-        3 => %w(),
-        4 => %w()
-      }
-      @included_letters_with_known_number_of_occurrences = {}
+      @game_word = OrdleHelper::Word.new
     end
 
     def add_guess(word:, game_number: 1) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-      add_guessed_word(word)
       # rubocop:disable Style/StringConcatenation
       output.puts "What were the colors for #{word} in game #{game_number}?".light_blue +
                   "\nPlease enter one of the following letters for each letter in the word ".light_blue +
@@ -53,24 +32,11 @@ module OrdleHelper
                   "\n\t(G)reen".light_green
       # rubocop:enable Style/StringConcatenation
       inputs = input.gets.chomp.upcase
-
-      if inputs == GUESSED_CORRECT_WORD
-        puts "Great job on getting the correct word of #{word}!".light_green
+      if game_word.add_guess(guess: word, guess_feedback: inputs) == "DONE"
+        output.puts "Great job on getting the correct word of #{word}!".light_green
         return "DONE"
       end
 
-      inputs.split("").each_with_index do |input, position|
-        case input
-        when CORRECT_LETTER
-          add_to_correct_letters(position:, letter: word[position])
-        when RIGHT_LETTER_WRONG_SPOT
-          add_to_included_letters_wrong_spot(position:, letter: word[position])
-        when NOT_INCLUDED_LETTER
-          add_to_not_included_letters(letter: word[position], guess: word, position:)
-        else
-          raise "Invalid response. The only valid responses are 'N', 'Y', and 'G'."
-        end
-      end
       call
       print_keyboard_state
     end
@@ -82,43 +48,46 @@ module OrdleHelper
 
       keyboard_state = ""
       line_one.each do |letter|
-        keyboard_state += if not_included_letters.include?(letter)
-                            letter.black
-                          elsif correct_letters.values.join("").split("").include?(letter)
-                            letter.green
-                          elsif included_letters_wrong_spot.values.join("").split("").include?(letter)
-                            letter.yellow
-                          else
-                            letter
-                          end
+        keyboard_state +=
+          if game_word.not_included_letters.include?(letter)
+            letter.black
+          elsif game_word.correct_letters.values.join("").split("").include?(letter)
+            letter.green
+          elsif game_word.included_letters_wrong_spot.values.join("").split("").include?(letter)
+            letter.yellow
+          else
+            letter
+          end
         keyboard_state += " "
       end
 
       keyboard_state += "\n "
       line_two.each do |letter|
-        keyboard_state += if not_included_letters.include?(letter)
-                            letter.black
-                          elsif correct_letters.values.join("").split("").include?(letter)
-                            letter.green
-                          elsif included_letters_wrong_spot.values.join("").split("").include?(letter)
-                            letter.yellow
-                          else
-                            letter
-                          end
+        keyboard_state +=
+          if game_word.not_included_letters.include?(letter)
+            letter.black
+          elsif game_word.correct_letters.values.join("").split("").include?(letter)
+            letter.green
+          elsif game_word.included_letters_wrong_spot.values.join("").split("").include?(letter)
+            letter.yellow
+          else
+            letter
+          end
         keyboard_state += " "
       end
 
       keyboard_state += "\n  "
       line_three.each do |letter|
-        keyboard_state += if not_included_letters.include?(letter)
-                            letter.black
-                          elsif correct_letters.values.join("").split("").include?(letter)
-                            letter.green
-                          elsif included_letters_wrong_spot.values.join("").split("").include?(letter)
-                            letter.yellow
-                          else
-                            letter
-                          end
+        keyboard_state +=
+          if game_word.not_included_letters.include?(letter)
+            letter.black
+          elsif game_word.correct_letters.values.join("").split("").include?(letter)
+            letter.green
+          elsif game_word.included_letters_wrong_spot.values.join("").split("").include?(letter)
+            letter.yellow
+          else
+            letter
+          end
         keyboard_state += " "
       end
 
@@ -126,7 +95,6 @@ module OrdleHelper
     end
 
     def call
-      verify_consistent_information
       verify_guesses
       exclude_words_with_not_included_letters
       exclude_words_without_correct_letters
@@ -136,43 +104,22 @@ module OrdleHelper
       true
     end
 
-    def verify_consistent_information
-      return if included_letters.empty? || not_included_letters.empty?
-
-      included_letters.each do |included_letter|
-        raise "Inconsistent information provided." if not_included_letters.include?(included_letter)
-      end
-    end
-
-    def included_letters
-      @included_letters = []
-      5.times do |position|
-        @included_letters << correct_letters[position] unless correct_letters[position].blank?
-
-        included_letters_wrong_spot[position].each do |word|
-          @included_letters << word
-        end
-      end
-
-      @included_letters
-    end
-
     def verify_guesses # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-      guesses.each do |guess|
+      game_word.guesses.each do |guess|
         message = ""
         guess.size.times do |position|
-          if not_included_letters.include?(guess[position])
+          if game_word.not_included_letters.include?(guess[position])
             message += guess[position]
-          elsif correct_letters[position] == guess[position]
+          elsif game_word.correct_letters[position] == guess[position]
             message += guess[position].light_green
-          elsif included_letters_wrong_spot[position].include?(guess[position])
+          elsif game_word.included_letters_wrong_spot[position].include?(guess[position])
             message += guess[position].light_yellow
           else
-            unless included_letters_with_known_number_of_occurrences.key?(guess[position])
+            unless game_word.included_letters_with_known_number_of_occurrences.key?(guess[position])
               raise "Letter without information: #{guess[position]}."
             end
 
-            unless included_letters_with_known_number_of_occurrences[guess[position]] < guess.split("").count(guess[position]) # rubocop:disable Layout/LineLength
+            unless game_word.included_letters_with_known_number_of_occurrences[guess[position]] < guess.split("").count(guess[position]) # rubocop:disable Layout/LineLength
               raise "Unknown error occurred."
             end
 
@@ -185,13 +132,13 @@ module OrdleHelper
     end
 
     def exclude_words_with_not_included_letters
-      not_included_letters.each do |letter|
+      game_word.not_included_letters.each do |letter|
         word_bank.reject! { |word| word.upcase.include?(letter.upcase) }
       end
     end
 
     def exclude_words_without_correct_letters
-      correct_letters.each do |position, letter|
+      game_word.correct_letters.each do |position, letter|
         next if letter.empty?
 
         word_bank.select! { |word| word[position].casecmp(letter).zero? }
@@ -199,7 +146,7 @@ module OrdleHelper
     end
 
     def exclude_words_without_included_letters_in_wrong_spot
-      included_letters_wrong_spot.each do |position, letters|
+      game_word.included_letters_wrong_spot.each do |position, letters|
         next if letters.empty?
 
         letters.each do |letter|
@@ -224,21 +171,6 @@ module OrdleHelper
 
     def potential_plural?(word)
       word.end_with?("s")
-    end
-
-    def add_guessed_word(word)
-      @guesses << word
-
-      output.puts "Added guess of #{word}.".light_green
-    end
-
-    def add_to_not_included_letters(letter:, guess:, position:)
-      return if not_included_letters.include?(letter)
-      if guess.split("").count(letter) > 1 && guess[0..position - 1].include?(letter)
-        return add_occurrence_limit(letter:, guess:)
-      end
-
-      @not_included_letters << letter
     end
 
     def add_occurrence_limit(letter:, guess:)

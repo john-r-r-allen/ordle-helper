@@ -247,7 +247,7 @@ RSpec.describe OrdleHelper::Word do
   end
 
   describe "#add_to_not_included_letters" do
-    context "when the letter is already in the not_included_letters instance variable" do
+    context "when the letter is already in @not_included_letters" do
       it "does not add the letter again" do
         subject.instance_variable_set(:@not_included_letters, ["H"])
 
@@ -257,13 +257,16 @@ RSpec.describe OrdleHelper::Word do
       end
     end
 
-    context "when the letter is not already in the not_included_letters instance variable" do
-      it "adds the letter to the instance variable" do
-        expect(subject.instance_variable_get(:@not_included_letters)).to eq([])
+    context "when the letter is not already in @not_included_letters" do
+      context "when the letter is not in @included_letters_with_known_number_of_occurrences" do
+        it "adds the letter to the instance variable" do
+          expect(subject.instance_variable_get(:@included_letters_with_known_number_of_occurrences)).to eq({})
+          expect(subject.instance_variable_get(:@not_included_letters)).to eq([])
 
-        subject.add_to_not_included_letters(guess:, index:)
+          subject.add_to_not_included_letters(guess:, index:)
 
-        expect(subject.instance_variable_get(:@not_included_letters)).to eq(["H"])
+          expect(subject.instance_variable_get(:@not_included_letters)).to eq(["H"])
+        end
       end
     end
   end
