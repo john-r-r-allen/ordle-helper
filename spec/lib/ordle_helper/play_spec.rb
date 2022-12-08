@@ -140,14 +140,14 @@ RSpec.describe OrdleHelper::Play do
         expect(output.string).to(
           eq(
             # rubocop:disable Style/StringConcatenation
-              "What were the colors for #{word} in game #{game_number}?".light_blue +
-              "\nPlease enter one of the following letters for each letter in the word ".light_blue +
-              "(Example: ".light_blue + "NNN" + "G".light_green + "N" + "):".light_blue +
-              "\n\t(N)one" +
-              "\n\t(Y)ellow".light_yellow +
-              "\n\t(G)reen".light_green + "\n" +
-              "Great job on getting the correct word of zooms!".light_green +
-              PUTS_ENDING
+            "What were the colors for #{word} in game #{game_number}?".light_blue +
+            "\nPlease enter one of the following letters for each letter in the word ".light_blue +
+            "(Example: ".light_blue + "NNN" + "G".light_green + "N" + "):".light_blue +
+            "\n\t(N)one" +
+            "\n\t(Y)ellow".light_yellow +
+            "\n\t(G)reen".light_green + "\n" +
+            "Great job on getting the correct word of zooms!".light_green +
+            PUTS_ENDING
             # rubocop:enable Style/StringConcatenation
           )
         )

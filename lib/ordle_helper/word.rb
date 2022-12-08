@@ -1,5 +1,5 @@
 module OrdleHelper
-  class Word
+  class Word # rubocop:disable Metrics/ClassLength
     CORRECT_LETTER = "G".freeze
     RIGHT_LETTER_WRONG_SPOT = "Y".freeze
     NOT_INCLUDED_LETTER = "N".freeze
