@@ -7,7 +7,8 @@ module OrdleHelper
       GAME_SELECTION: "Which ordle game are you playing? Please enter one of the following letters:".light_blue +
                       "\n\t(W)ordle" +
                       "\n\t(Q)uordle" +
-                      "\n\t(O)ctordle",
+                      "\n\t(O)ctordle" +
+                      "\n\t(S)edecordle",
       # rubocop:enable Style/LineEndConcatenation, Style/StringConcatenation
       GAME_START: "Initiating word finder.".light_blue,
       GUESS_PROMPT: "Enter your guess. If you would like to exit, type 'done' and press Enter/Return.".light_blue
@@ -32,6 +33,8 @@ module OrdleHelper
         call(4)
       when "O"
         call(8)
+      when "S"
+        call(16)
       else
         raise "#{user_input} is not a valid response."
       end

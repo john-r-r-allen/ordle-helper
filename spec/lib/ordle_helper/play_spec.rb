@@ -31,7 +31,8 @@ RSpec.describe OrdleHelper::Play do
             "Which ordle game are you playing? Please enter one of the following letters:".light_blue +
               "\n\t(W)ordle" +
               "\n\t(Q)uordle" +
-              "\n\t(O)ctordle"
+              "\n\t(O)ctordle" +
+              "\n\t(S)edecordle"
           )
         )
         # rubocop:enable Style/StringConcatenation, Style/LineEndConcatenation
@@ -106,6 +107,26 @@ RSpec.describe OrdleHelper::Play do
 
         it "calls the call method with no parameters" do
           expect(subject).to receive(:call).with(8).once
+
+          subject.determine_and_initiate_game
+        end
+      end
+    end
+
+    describe "when sedecordle is selected (option S)" do
+      let(:input) { StringIO.new("S\n") }
+
+      it "calls the call method with no parameters" do
+        expect(subject).to receive(:call).with(16).once
+
+        subject.determine_and_initiate_game
+      end
+
+      describe "when the option is passed lowercase" do
+        let(:input) { StringIO.new("s\n") }
+
+        it "calls the call method with no parameters" do
+          expect(subject).to receive(:call).with(16).once
 
           subject.determine_and_initiate_game
         end
