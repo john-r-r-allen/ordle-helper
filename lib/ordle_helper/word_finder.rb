@@ -99,6 +99,7 @@ module OrdleHelper
       exclude_words_with_not_included_letters
       exclude_words_without_correct_letters
       exclude_words_without_included_letters_in_wrong_spot
+      exclude_words_with_wrong_number_of_letter_occurrences
       output_current_word_bank_state
 
       true
@@ -153,6 +154,12 @@ module OrdleHelper
           word_bank.reject! { |word| word[position].casecmp(letter).zero? }
           word_bank.select! { |word| word.upcase.include?(letter.upcase) }
         end
+      end
+    end
+
+    def exclude_words_with_wrong_number_of_letter_occurrences
+      game_word.included_letters_with_known_number_of_occurrences.each do |letter, occurrences|
+        word_bank.select! { |word| word.first.upcase.chars.tally[letter] == occurrences }
       end
     end
 
