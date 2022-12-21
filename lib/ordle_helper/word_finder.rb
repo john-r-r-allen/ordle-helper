@@ -116,11 +116,11 @@ module OrdleHelper
           elsif game_word.included_letters_wrong_spot[position].include?(guess[position])
             message += guess[position].light_yellow
           else
-            unless game_word.included_letters_with_known_number_of_occurrences.key?(guess[position])
+            unless game_word.known_letter_occurrences.key?(guess[position])
               raise "Letter without information: #{guess[position]}."
             end
 
-            unless game_word.included_letters_with_known_number_of_occurrences[guess[position]] < guess.split("").count(guess[position]) # rubocop:disable Layout/LineLength
+            unless game_word.known_letter_occurrences[guess[position]] < guess.split("").count(guess[position]) # rubocop:disable Layout/LineLength
               raise "Unknown error occurred."
             end
 
@@ -158,7 +158,7 @@ module OrdleHelper
     end
 
     def exclude_words_with_wrong_number_of_letter_occurrences
-      game_word.included_letters_with_known_number_of_occurrences.each do |letter, occurrences|
+      game_word.known_letter_occurrences.each do |letter, occurrences|
         word_bank.select! { |word| word.upcase.chars.tally[letter] == occurrences }
       end
     end
@@ -185,7 +185,7 @@ module OrdleHelper
       guess.size.times do |i|
         valid_number_of_occurrences += 1 if guess[i] == letter
       end
-      @included_letters_with_known_number_of_occurrences[letter] = valid_number_of_occurrences
+      @known_letter_occurrences[letter] = valid_number_of_occurrences
       output.puts "Set occurrence limit for #{letter} to #{valid_number_of_occurrences}".light_green
     end
 

@@ -78,11 +78,11 @@ RSpec.describe OrdleHelper::Word do
       let(:guess_feedback) { "GNGGG" }
 
       it "does not set an occurrence limit" do
-        expect(subject.instance_variable_get(:@included_letters_with_known_number_of_occurrences)).to eq({})
+        expect(subject.instance_variable_get(:@known_letter_occurrences)).to eq({})
 
         subject.handle_multiple_letter_occurrences(guess:, guess_feedback:)
 
-        expect(subject.instance_variable_get(:@included_letters_with_known_number_of_occurrences)).to eq({})
+        expect(subject.instance_variable_get(:@known_letter_occurrences)).to eq({})
       end
     end
 
@@ -91,11 +91,11 @@ RSpec.describe OrdleHelper::Word do
         let(:guess_feedback) { "GNYGN" }
 
         it "does not set an occurrence limit" do
-          expect(subject.instance_variable_get(:@included_letters_with_known_number_of_occurrences)).to eq({})
+          expect(subject.instance_variable_get(:@known_letter_occurrences)).to eq({})
 
           subject.handle_multiple_letter_occurrences(guess:, guess_feedback:)
 
-          expect(subject.instance_variable_get(:@included_letters_with_known_number_of_occurrences)).to eq({})
+          expect(subject.instance_variable_get(:@known_letter_occurrences)).to eq({})
         end
       end
 
@@ -104,25 +104,21 @@ RSpec.describe OrdleHelper::Word do
 
         context "when the letter does not already have an occurrence limit set" do
           it "sets the occurrence limit for letters appearing more than once" do
-            expect(subject.instance_variable_get(:@included_letters_with_known_number_of_occurrences)).to eq({})
+            expect(subject.instance_variable_get(:@known_letter_occurrences)).to eq({})
 
             subject.handle_multiple_letter_occurrences(guess:, guess_feedback:)
 
-            expect(subject.instance_variable_get(:@included_letters_with_known_number_of_occurrences)).to(
-              eq({ "E" => 1 })
-            )
+            expect(subject.instance_variable_get(:@known_letter_occurrences)).to eq({ "E" => 1 })
           end
         end
 
         context "when the letter already has an occurrence limit set" do
           it "does not modify the occurrence limit recorded" do
-            subject.instance_variable_set(:@included_letters_with_known_number_of_occurrences, { "E" => 1 })
+            subject.instance_variable_set(:@known_letter_occurrences, { "E" => 1 })
 
             subject.handle_multiple_letter_occurrences(guess:, guess_feedback:)
 
-            expect(subject.instance_variable_get(:@included_letters_with_known_number_of_occurrences)).to(
-              eq({ "E" => 1 })
-            )
+            expect(subject.instance_variable_get(:@known_letter_occurrences)).to eq({ "E" => 1 })
           end
         end
       end
@@ -258,9 +254,9 @@ RSpec.describe OrdleHelper::Word do
     end
 
     context "when the letter is not already in @not_included_letters" do
-      context "when the letter is not in @included_letters_with_known_number_of_occurrences" do
+      context "when the letter is not in @known_letter_occurrences" do
         it "adds the letter to the instance variable" do
-          expect(subject.instance_variable_get(:@included_letters_with_known_number_of_occurrences)).to eq({})
+          expect(subject.instance_variable_get(:@known_letter_occurrences)).to eq({})
           expect(subject.instance_variable_get(:@not_included_letters)).to eq([])
 
           subject.add_to_not_included_letters(guess:, index:)

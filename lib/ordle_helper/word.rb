@@ -11,7 +11,7 @@ module OrdleHelper
                 :not_included_letters,
                 :correct_letters,
                 :included_letters_wrong_spot,
-                :included_letters_with_known_number_of_occurrences
+                :known_letter_occurrences
 
     def initialize
       @guesses = []
@@ -30,7 +30,7 @@ module OrdleHelper
         3 => %w(),
         4 => %w()
       }
-      @included_letters_with_known_number_of_occurrences = {}
+      @known_letter_occurrences = {}
     end
 
     def add_guess(guess:, guess_feedback:)
@@ -62,9 +62,9 @@ module OrdleHelper
         end
         next if position_and_feedback.values.uniq.size == 1 # no action for all the same feedback
         next if position_and_feedback.values.uniq.sort == %w(G Y)
-        next if included_letters_with_known_number_of_occurrences.key?(letter)
+        next if known_letter_occurrences.key?(letter)
 
-        @included_letters_with_known_number_of_occurrences[letter] =
+        @known_letter_occurrences[letter] =
           position_and_feedback.reject { |_position, feedback| feedback == "N" }.count # rubocop:disable Performance/Count
       end
     end
@@ -96,7 +96,7 @@ module OrdleHelper
 
     def add_to_not_included_letters(guess:, index:)
       return if not_included_letters.include?(guess[index])
-      return if included_letters_with_known_number_of_occurrences.key?(guess[index])
+      return if known_letter_occurrences.key?(guess[index])
 
       @not_included_letters << guess[index]
     end
@@ -105,7 +105,7 @@ module OrdleHelper
       return if included_letters.empty? || not_included_letters.empty?
 
       included_letters.each do |letter|
-        next if included_letters_with_known_number_of_occurrences.key?(letter)
+        next if known_letter_occurrences.key?(letter)
 
         raise "Inconsistent information provided." if not_included_letters.include?(letter)
       end
