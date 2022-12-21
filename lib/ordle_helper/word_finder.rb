@@ -159,7 +159,7 @@ module OrdleHelper
 
     def exclude_words_with_wrong_number_of_letter_occurrences
       game_word.included_letters_with_known_number_of_occurrences.each do |letter, occurrences|
-        word_bank.select! { |word| word.first.upcase.chars.tally[letter] == occurrences }
+        word_bank.select! { |word| word.upcase.chars.tally[letter] == occurrences }
       end
     end
 
