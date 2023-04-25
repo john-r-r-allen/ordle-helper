@@ -165,7 +165,11 @@ module OrdleHelper
 
     def output_current_word_bank_state # rubocop:disable Metrics/AbcSize
       output.puts "#{word_bank.size} possible words:"
-      return if word_bank.reject { |word| potential_plural?(word) }.count > 10 # rubocop:disable Performance/Count
+      if word_bank.reject { |word| potential_plural?(word) }.count > 10 # rubocop:disable Performance/Count
+        output_common_letters
+
+        return
+      end
 
       word_bank.each do |word|
         if potential_plural?(word)
@@ -173,6 +177,13 @@ module OrdleHelper
         else
           output.puts "\t#{word}".light_cyan
         end
+      end
+    end
+
+    def output_common_letters
+      output.puts "Top 8 most common letters remaining:"
+      word_bank.map { |word| word.chars }.flatten.tally.sort_by(&:last).reverse.first(8).each do |letter, count| 
+        output.puts "\tLetter #{letter} found #{count} time(s)"
       end
     end
 
