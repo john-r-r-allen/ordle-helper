@@ -1,6 +1,6 @@
 module OrdleHelper
   class Play
-    MAX_NUMBER_OF_TURNS = 13
+    MAX_NUMBER_OF_TURNS = 500
     EXIT_WORDS = %w(DONE QUIT EXIT STOP).freeze
     MESSAGES = {
       # rubocop:disable Style/LineEndConcatenation, Style/StringConcatenation
